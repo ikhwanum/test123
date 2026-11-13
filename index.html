@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>10초 수업노트 - 진도 & 학생 특기사항 기록 도구</title>
+  <style>
+    /* CSS 변수 & 초기화 */
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+      --text-main: #0f172a;
+      --text-sub: #334155;
+      --text-muted: #64748b;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+      
+      /* 태그 배지 색상 */
+      --badge-blue: #e0f2fe;
+      --badge-blue-text: #0369a1;
+      --badge-purple: #f3e8ff;
+      --badge-purple-text: #7e22ce;
+      --badge-green: #dcfce7;
+      --badge-green-text: #15803d;
+      --badge-amber: #fef3c7;
+      --badge-amber-text: #b45309;
+      --badge-gray: #f1f5f9;
+      --badge-gray-text: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding-bottom: 70px;
+    }
+
+    /* 헤더 */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .header-inner {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), #3b82f6);
+      color: white;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: block;
+    }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* 상단 버튼들 */
+    .btn-header {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 40px;
+      transition: all 0.15s ease;
+    }
+    .btn-header:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+    .btn-header-collab {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+
+    /* 메인 컨테이너 */
+    main {
+      max-width: 1040px;
+      margin: 20px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* 섹션 헤더 */
+    .section-header {
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* 카드 공통 */
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-sm);
+      padding: 20px;
+    }
+
+    /* 1. 입력 카드 */
+    .class-selector-wrap {
+      margin-bottom: 18px;
+    }
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .label-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-sub);
+    }
+    .label-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .pill-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* 학급 필 (Pill) 스타일 */
+    .class-pill {
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .class-pill:hover {
+      background: #e2e8f0;
+      color: var(--text-main);
+    }
+    .class-pill.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+    }
+    .pill-name-text {
+      cursor: pointer;
+    }
+    .btn-pill-edit {
+      background: transparent;
+      border: none;
+      font-size: 0.8rem;
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 4px;
+      opacity: 0.65;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .class-pill:hover .btn-pill-edit {
+      opacity: 0.95;
+    }
+    .btn-pill-edit:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.1);
+      transform: scale(1.1);
+    }
+    .class-pill.active .btn-pill-edit:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .btn-add-class {
+      background: transparent;
+      border: 1px dashed var(--border-color);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      min-height: 44px;
+      transition: all 0.15s ease;
+    }
+    .btn-add-class:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* 입력 폼 2단 레이아웃 */
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    @media (max-width: 768px) {
+      .form-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+    }
+    .box-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* 상단 학급명 배지 (클릭 시 이름 수정 가능) */
+    .target-class-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 1px solid var(--primary-border);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .target-class-badge:hover {
+      background: #dbeafe;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 모바일 친화적 입력창 */
+    .form-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      outline: none;
+      background: #ffffff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    textarea.form-input {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .recent-hint {
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .recent-hint strong {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .btn-use-hint {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px 6px;
+    }
+
+    /* 태그 선택 버튼 */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .tag-chip {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      user-select: none;
+    }
+    .tag-chip.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* 폼 하단 액션 */
+    .form-footer {
+      margin-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 14px;
+    }
+    .date-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      color: var(--text-sub);
+    }
+    .date-box input {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      background: #ffffff;
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .btn-save:hover {
+      background: var(--primary-hover);
+    }
+    .btn-save:active {
+      transform: scale(0.98);
+    }
+    .shortcut-text {
+      font-size: 0.75rem;
+      opacity: 0.85;
+      background: rgba(255,255,255,0.22);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+      .btn-save {
+        width: 100%;
+      }
+      .date-box {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* 2. 학급별 진도 현황판 */
+    .progress-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 14px;
+    }
+    .progress-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .progress-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .progress-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .class-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .class-title-badge {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .btn-card-rename {
+      background: #f1f5f9;
+      border: 1px solid var(--border-color);
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-sub);
+    }
+    .btn-card-rename:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: #fff;
+    }
+    .date-badge {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .progress-content-preview {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 12px;
+      min-height: 42px;
+      line-height: 1.4;
+    }
+    .progress-card-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 8px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* 3. 학생 기록 모아보기 */
+    .record-tabs {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-md);
+      width: fit-content;
+      margin-bottom: 14px;
+    }
+    .record-tab {
+      background: transparent;
+      border: none;
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      min-height: 40px;
+    }
+    .record-tab.active {
+      background: #ffffff;
+      color: var(--primary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .search-bar {
+      flex: 1;
+      min-width: 220px;
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      outline: none;
+      background: #ffffff;
+    }
+    .filter-select {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      background: #ffffff;
+      outline: none;
+      min-height: 44px;
+    }
+
+    /* 학생 카드 그리드 */
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 14px;
+    }
+    .student-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .student-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 8px;
+    }
+    .student-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .student-badge {
+      background: #e2e8f0;
+      color: var(--text-sub);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .student-name {
+      font-size: 1.05rem;
+      font-weight: 750;
+      color: var(--text-main);
+    }
+    .btn-copy {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-copy:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .record-item {
+      background: #f8fafc;
+      border: 1px solid #edf2f7;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 0.88rem;
+    }
+    .record-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .tag-badge {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.72rem;
+    }
+    .tag-발표우수 { background: var(--badge-blue); color: var(--badge-blue-text); }
+    .tag-질문탐구 { background: var(--badge-purple); color: var(--badge-purple-text); }
+    .tag-협업배려 { background: var(--badge-green); color: var(--badge-green-text); }
+    .tag-과제성실 { background: var(--badge-amber); color: var(--badge-amber-text); }
+    .tag-기타 { background: var(--badge-gray); color: var(--badge-gray-text); }
+
+    .record-text {
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+    .btn-del-record {
+      background: none;
+      border: none;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px;
+      margin-top: 4px;
+      display: block;
+      margin-left: auto;
+    }
+    .btn-del-record:hover {
+      color: #ef4444;
+      text-decoration: underline;
+    }
+
+    /* 타임라인 피드 */
+    .timeline-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .timeline-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    /* 모달 */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 16px;
+    }
+    .modal-backdrop.active {
+      display: flex;
+    }
+    .modal-window {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+    }
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .modal-head h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+    .modal-btn-close {
+      background: none;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 4px 8px;
+    }
+    .modal-scroll {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    /* 토스트 메시지 */
+    .toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      left: 20px;
+      max-width: 380px;
+      margin-left: auto;
+      background: #1e293b;
+      color: #ffffff;
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(120%);
+      opacity: 0;
+      transition: all 0.25s ease;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-box.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* 공동 입력 미리보기 안내 배너 */
+    .collab-banner {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 12px 14px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 0.86rem;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .empty-box {
+      text-align: center;
+      padding: 40px 16px;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    footer {
+      max-width: 1040px;
+      margin: 28px auto 0;
+      padding: 20px 16px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .footer-links {
+      display: flex;
+      gap: 12px;
+    }
+    .footer-link-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px;
+    }
+    .footer-link-btn:hover {
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <header>
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-icon">✏️</div>
+        <div>
+          <span class="brand-title">10초 수업노트</span>
+          <span class="brand-sub">수업 진도 & 학생 특기사항 기록 도구</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-header btn-header-collab" id="btn-open-collab-modal" title="동료 교사 공동 입력 예시 화면">
+          👥 공동 입력 (화면 예시)
+        </button>
+        <button class="btn-header" id="btn-export" title="데이터 파일 백업">
+          💾 백업
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 메인 본문 -->
+  <main>
+    <!-- 1. 원스톱 간편 기록 폼 -->
+    <section class="card">
+      <div class="section-header">
+        <h2 class="section-title">⚡ 10초 원스톱 수업 기록</h2>
+        <p class="section-desc">학급을 선택하고 진도와 학생 특기사항을 적은 후 저장 버튼을 누르면 브라우저에 즉시 보존됩니다.</p>
+      </div>
+
+      <!-- 학급 선택 바 -->
+      <div class="class-selector-wrap">
+        <div class="label-row">
+          <span class="label-title">📌 대상 학급 선택</span>
+          <span class="label-hint">💡 반 이름 옆 <strong>✏️</strong>를 누르면 반 이름을 바로 수정할 수 있습니다.</span>
+        </div>
+        <div class="pill-container" id="class-pills">
+          <!-- JS 렌더링 -->
+        </div>
+      </div>
+
+      <!-- 2단 입력 레이아웃 -->
+      <div class="form-layout">
+        <!-- 왼쪽: 수업 진도 -->
+        <div class="form-box">
+          <div class="box-title">
+            <span>📖 오늘 수업 진도</span>
+            <span class="target-class-badge" id="current-class-display" title="클릭하여 반 이름 수정">A반 ✏️</span>
+          </div>
+          <div class="form-group">
+            <input 
+              type="text" 
+              id="field-progress" 
+              class="form-input" 
+              placeholder="예: 3단원 2차시 (p.45~48) 탐구활동 발표"
+              autocomplete="off"
+            >
+            <div class="recent-hint" id="hint-recent-progress">
+              <span>직전 진도: <strong id="hint-recent-text">기록 없음</strong></span>
+              <button type="button" class="btn-use-hint" id="btn-fill-prev">불러오기</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 오른쪽: 학생 우수 사례 / 특기사항 -->
+        <div class="form-box">
+          <div class="box-title">
+            <span>⭐ 학생 특기사항 / 관찰 메모</span>
+            <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">(선택 입력)</span>
+          </div>
+          <div class="form-group">
+            <input 
+              type="text" 
+              id="field-student-name" 
+              class="form-input" 
+              placeholder="학생 번호/가명 (예: A반 07번 김새봄)"
+              autocomplete="off"
+            >
+          </div>
+          <div class="tag-list" id="tag-chips">
+            <button type="button" class="tag-chip active" data-tag="발표우수">#발표우수</button>
+            <button type="button" class="tag-chip" data-tag="질문탐구">#질문탐구</button>
+            <button type="button" class="tag-chip" data-tag="협업배려">#협업배려</button>
+            <button type="button" class="tag-chip" data-tag="과제성실">#과제성실</button>
+            <button type="button" class="tag-chip" data-tag="기타">#기타</button>
+          </div>
+          <div class="form-group">
+            <textarea 
+              id="field-student-note" 
+              class="form-input" 
+              placeholder="수업 중 관찰한 구체적인 우수 사례나 행동 특성을 적어주세요."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 하단 날짜 및 저장 버튼 -->
+      <div class="form-footer">
+        <div class="date-box">
+          <span>📅 수업 일자:</span>
+          <input type="date" id="field-date">
+        </div>
+        <button type="button" class="btn-save" id="btn-submit-entry">
+          <span>기록 저장</span>
+          <span class="shortcut-text">Ctrl + Enter</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 2. 학급별 진도 현황판 -->
+    <section>
+      <div class="section-header">
+        <h2 class="section-title">📊 학급별 수업 진도 현황판</h2>
+        <p class="section-desc">학급별 최신 진도 상태입니다. 카드를 누르면 해당 반의 전체 진도 이력을 확인합니다.</p>
+      </div>
+      <div class="progress-grid" id="progress-cards">
+        <!-- JS 렌더링 -->
+      </div>
+    </section>
+
+    <!-- 3. 학생 기록 모아보기 -->
+    <section class="card">
+      <div class="section-header">
+        <h2 class="section-title">📂 학생 특기사항 모아보기</h2>
+        <p class="section-desc">누적된 학생별 관찰 기록을 확인하고, 생기부 작성용으로 바로 복사할 수 있습니다.</p>
+      </div>
+
+      <!-- 뷰 모드 탭 -->
+      <div class="record-tabs">
+        <button class="record-tab active" id="tab-grouped" data-view="grouped">학생별 모아보기</button>
+        <button class="record-tab" id="tab-timeline" data-view="timeline">전체 타임라인 피드</button>
+      </div>
+
+      <!-- 검색 및 학급 필터 바 -->
+      <div class="filter-row">
+        <input 
+          type="text" 
+          id="search-box" 
+          class="search-bar" 
+          placeholder="🔍 학생 가명 또는 관찰 키워드로 검색 (예: 김새봄, 탐구, 그래프)..."
+        >
+        <select id="select-class-filter" class="filter-select">
+          <option value="ALL">전체 학급 모아보기</option>
+          <!-- JS 렌더링 -->
+        </select>
+      </div>
+
+      <!-- 학생별 모아보기 그리드 -->
+      <div class="student-grid" id="grouped-container">
+        <!-- JS 렌더링 -->
+      </div>
+
+      <!-- 전체 타임라인 피드 -->
+      <div class="timeline-container" id="timeline-container" style="display: none;">
+        <!-- JS 렌더링 -->
+      </div>
+    </section>
+  </main>
+
+  <!-- 진도 이력 모달 -->
+  <div class="modal-backdrop" id="modal-history">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3 id="modal-history-title">학급 진도 이력</h3>
+        <button class="modal-btn-close" id="btn-close-history">&times;</button>
+      </div>
+      <div class="modal-scroll" id="modal-history-content">
+        <!-- JS 렌더링 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 공동 입력 화면 예시 모달 -->
+  <div class="modal-backdrop" id="modal-collab">
+    <div class="modal-window">
+      <div class="modal-head">
+        <h3>👥 동교과/동학년 공동 입력 화면 (예시)</h3>
+        <button class="modal-btn-close" id="btn-close-collab">&times;</button>
+      </div>
+      <div class="modal-scroll">
+        <div class="collab-banner">
+          📢 <strong>[화면 예시 안내]</strong><br>
+          여러 선생님이 함께 수업 진도와 학생 관찰 메모를 작성하는 입력 화면의 예시입니다.<br>
+          <strong>※ 실시간 공동 저장은 차기 기능으로 추가될 예정입니다.</strong>
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">교사 구분</label>
+          <select class="form-input" style="font-size: 15px;">
+            <option>김교과 선생님 (A, B반 담당)</option>
+            <option>이전담 선생님 (C, D반 담당)</option>
+            <option>박담임 선생님 (A반 담임)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">공동 작성 학급 및 교과</label>
+          <input type="text" class="form-input" value="1학년 공통과학 - A반" readonly style="background:#f1f5f9;">
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">공동 수업 진도 메모</label>
+          <input type="text" class="form-input" placeholder="동교과 선생님들과 공유할 진도 세부사항 입력">
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">학급 공유 학생 관찰 메모</label>
+          <textarea class="form-input" placeholder="수업 중 교과 교사 또는 담임 교사에게 공유할 학생 특기사항 입력"></textarea>
+        </div>
+
+        <button type="button" class="btn-save" style="width: 100%; margin-top: 10px; background: #94a3b8; cursor: not-allowed;" onclick="alert('공동 저장은 차기 업데이트에 추가될 예정입니다. (현재는 화면 예시만 제공됩니다)')">
+          공동 저장 (차기 추가 예정)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 푸터 -->
+  <footer>
+    <div>
+      © 10초 수업노트 (Single-File Offline Web Tool) · 브라우저 LocalStorage에 안전하게 자동 저장됩니다.
+    </div>
+    <div class="footer-links">
+      <button class="footer-link-btn" id="btn-reload-samples">가상 예시(A~D반) 다시 채우기</button>
+      <button class="footer-link-btn" id="btn-reset-data" style="color: #ef4444;">전체 데이터 초기화</button>
+    </div>
+  </footer>
+
+  <!-- 토스트 알림창 -->
+  <div class="toast-box" id="toast">✅ 알림 메시지</div>
+
+  <script>
+    /* ==========================================================================
+       1. 데이터 스토리지 & A, B, C, D반 가상 예시 (개인정보 없음)
+       ========================================================================== */
+    const KEY_CLASSES = 'school_notes_classes_v3';
+    const KEY_PROGRESS = 'school_notes_progress_v3';
+    const KEY_STUDENTS = 'school_notes_students_v3';
+
+    // 기본 학급 목록: A반, B반, C반, D반
+    const INITIAL_CLASSES = ['A반', 'B반', 'C반', 'D반'];
+
+    // 가상 예시 진도 데이터 (A, B, C, D반)
+    const INITIAL_PROGRESS = [
+      { id: 'p1', className: 'A반', date: '2026-11-13', progress: '3단원 2차시 (p.45~48) 기체의 상태 변화 실험', timestamp: 1731456000000 },
+      { id: 'p2', className: 'B반', date: '2026-11-13', progress: '3단원 1차시 (p.42~44) 보일의 법칙 개념 탐구', timestamp: 1731455000000 },
+      { id: 'p3', className: 'C반', date: '2026-11-12', progress: '2단원 5차시 (p.38~41) 물질의 특성 총괄 문제 풀이', timestamp: 1731370000000 },
+      { id: 'p4', className: 'D반', date: '2026-11-11', progress: '3단원 2차시 (p.45~48) 기체의 상태 변화 모둠 토의', timestamp: 1731283000000 }
+    ];
+
+    // 가상 예시 학생 관찰 기록 (5건 - 순수 가명, 연락처/개인정보 없음)
+    const INITIAL_STUDENTS = [
+      {
+        id: 's1',
+        className: 'A반',
+        studentName: 'A반 07번 김새봄',
+        tag: '발표우수',
+        note: '기체의 부피와 압력 관계 그래프에서 발생한 오차의 원인을 모둠원들에게 논리적으로 설명하고 정확한 결론을 도출함.',
+        date: '2026-11-13',
+        timestamp: 1731456000000
+      },
+      {
+        id: 's2',
+        className: 'A반',
+        studentName: 'A반 14번 이찬솔',
+        tag: '질문탐구',
+        note: '주사기 압축 실험 중 온도가 함께 변할 때의 현상에 대해 심도 있는 질문을 던져 학급 전체 탐구로 발전시킴.',
+        date: '2026-11-13',
+        timestamp: 1731455500000
+      },
+      {
+        id: 's3',
+        className: 'B반',
+        studentName: 'B반 03번 박하랑',
+        tag: '협업배려',
+        note: '모둠 실험 중 실험 기구 조작이 서툰 친구에게 차근차근 시범을 보이며 협동 학습 분위기를 주도함.',
+        date: '2026-11-13',
+        timestamp: 1731455000000
+      },
+      {
+        id: 's4',
+        className: 'C반',
+        studentName: 'C반 19번 정다온',
+        tag: '과제성실',
+        note: '물질의 특성 단원 요약 과제를 실생활 사례와 접목하여 가장 성실하고 체계적인 마인드맵으로 작성함.',
+        date: '2026-11-12',
+        timestamp: 1731370000000
+      },
+      {
+        id: 's5',
+        className: 'D반',
+        studentName: 'D반 11번 최은솔',
+        tag: '발표우수',
+        note: '상태 변화에 따른 입자 모형을 칠판에 시각화하여 급우들의 이해를 돕는 뛰어난 발표 태도를 보임.',
+        date: '2026-11-11',
+        timestamp: 1731283000000
+      }
+    ];
+
+    function getStorage(key, fallback) {
+      try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function setStorage(key, val) {
+      localStorage.setItem(key, JSON.stringify(val));
+    }
+
+    // 전역 상태
+    let classes = getStorage(KEY_CLASSES, null);
+    let progressList = getStorage(KEY_PROGRESS, null);
+    let studentRecords = getStorage(KEY_STUDENTS, null);
+
+    // 최초 실행 시 A, B, C, D반 가상 데이터 탑재
+    if (!classes || !progressList || !studentRecords) {
+      classes = [...INITIAL_CLASSES];
+      progressList = [...INITIAL_PROGRESS];
+      studentRecords = [...INITIAL_STUDENTS];
+      setStorage(KEY_CLASSES, classes);
+      setStorage(KEY_PROGRESS, progressList);
+      setStorage(KEY_STUDENTS, studentRecords);
+    }
+
+    let activeClass = classes[0] || 'A반';
+    let activeTag = '발표우수';
+    let currentViewMode = 'grouped'; // 'grouped' | 'timeline'
+
+    /* ==========================================================================
+       2. DOM 참조
+       ========================================================================== */
+    const classPillsEl = document.getElementById('class-pills');
+    const currentClassDisplay = document.getElementById('current-class-display');
+    const fieldProgress = document.getElementById('field-progress');
+    const hintRecentText = document.getElementById('hint-recent-text');
+    const btnFillPrev = document.getElementById('btn-fill-prev');
+    const fieldStudentName = document.getElementById('field-student-name');
+    const fieldStudentNote = document.getElementById('field-student-note');
+    const fieldDate = document.getElementById('field-date');
+    const btnSubmitEntry = document.getElementById('btn-submit-entry');
+    const tagChipsEl = document.getElementById('tag-chips');
+
+    const progressCardsEl = document.getElementById('progress-cards');
+    const groupedContainer = document.getElementById('grouped-container');
+    const timelineContainer = document.getElementById('timeline-container');
+    const searchBox = document.getElementById('search-box');
+    const selectClassFilter = document.getElementById('select-class-filter');
+
+    const tabGrouped = document.getElementById('tab-grouped');
+    const tabTimeline = document.getElementById('tab-timeline');
+
+    const modalHistory = document.getElementById('modal-history');
+    const modalHistoryTitle = document.getElementById('modal-history-title');
+    const modalHistoryContent = document.getElementById('modal-history-content');
+    const btnCloseHistory = document.getElementById('btn-close-history');
+
+    const modalCollab = document.getElementById('modal-collab');
+    const btnOpenCollab = document.getElementById('btn-open-collab-modal');
+    const btnCloseCollab = document.getElementById('btn-close-collab');
+
+    const toastEl = document.getElementById('toast');
+
+    /* ==========================================================================
+       3. 학급 이름 수정 (클릭 시 수정 지원 핵심 로직)
+       ========================================================================== */
+    window.editClassName = function(oldName) {
+      const newName = prompt(`'${oldName}'의 새로운 반 이름을 입력해주세요:`, oldName);
+      if (newName === null) return; // 취소
+
+      const trimmed = newName.trim();
+      if (!trimmed) {
+        alert('반 이름을 공백으로 설정할 수 없습니다.');
+        return;
+      }
+      if (trimmed === oldName) return;
+
+      if (classes.includes(trimmed)) {
+        alert(`'${trimmed}'은(는) 이미 존재하는 반 이름입니다.`);
+        return;
+      }
+
+      // 1. 학급 목록 내 이름 변경
+      const idx = classes.indexOf(oldName);
+      if (idx !== -1) {
+        classes[idx] = trimmed;
+      }
+
+      // 2. 기존 진도 기록 내 학급 이름 일괄 변경
+      progressList.forEach(p => {
+        if (p.className === oldName) {
+          p.className = trimmed;
+        }
+      });
+
+      // 3. 기존 학생 기록 내 학급 이름 및 학생 가명 접두어 일괄 갱신
+      studentRecords.forEach(s => {
+        if (s.className === oldName) {
+          s.className = trimmed;
+          if (s.studentName.startsWith(oldName)) {
+            s.studentName = trimmed + s.studentName.slice(oldName.length);
+          }
+        }
+      });
+
+      // 4. 현재 활성 선택 학급 업데이트
+      if (activeClass === oldName) {
+        activeClass = trimmed;
+      }
+
+      // 5. 스토리지 저장
+      setStorage(KEY_CLASSES, classes);
+      setStorage(KEY_PROGRESS, progressList);
+      setStorage(KEY_STUDENTS, studentRecords);
+
+      // 6. UI 전체 리렌더링
+      renderClassPills();
+      updateRecentProgressHint();
+      renderProgressCards();
+      renderStudentSection();
+
+      showToast(`반 이름이 '${oldName}'에서 '${trimmed}'(으)로 수정되었습니다.`);
+    };
+
+    /* ==========================================================================
+       4. 렌더링 함수들
+       ========================================================================== */
+    function renderClassPills() {
+      classPillsEl.innerHTML = '';
+      classes.forEach(c => {
+        const pill = document.createElement('div');
+        pill.className = `class-pill ${c === activeClass ? 'active' : ''}`;
+        
+        // 반 이름 클릭 시 선택, 더블 클릭 시 수정
+        pill.innerHTML = `
+          <span class="pill-name-text" title="클릭하여 ${c} 선택, 더블클릭하여 이름 수정">${escapeHtml(c)}</span>
+          <button type="button" class="btn-pill-edit" title="${c} 이름 수정" onclick="event.stopPropagation(); editClassName('${escapeAttr(c)}');">✏️</button>
+        `;
+
+        pill.onclick = () => selectClass(c);
+        pill.ondblclick = () => editClassName(c);
+
+        classPillsEl.appendChild(pill);
+      });
+
+      // 학급 추가 버튼
+      const addBtn = document.createElement('button');
+      addBtn.type = 'button';
+      addBtn.className = 'btn-add-class';
+      addBtn.textContent = '+ 반 추가';
+      addBtn.onclick = addNewClass;
+      classPillsEl.appendChild(addBtn);
+
+      // 상단 입력 폼의 타겟 학급 배지 갱신 (클릭 시 이름 수정 가능)
+      currentClassDisplay.innerHTML = `${escapeHtml(activeClass)} ✏️`;
+      currentClassDisplay.title = `클릭하여 ${activeClass} 이름 수정`;
+      currentClassDisplay.onclick = () => editClassName(activeClass);
+
+      // 필터 셀렉트 갱신
+      selectClassFilter.innerHTML = '<option value="ALL">전체 학급 모아보기</option>';
+      classes.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c;
+        opt.textContent = `${c} 학생 기록만 보기`;
+        selectClassFilter.appendChild(opt);
+      });
+    }
+
+    function selectClass(className) {
+      activeClass = className;
+      renderClassPills();
+      updateRecentProgressHint();
+    }
+
+    function addNewClass() {
+      const name = prompt('추가할 새 학급 이름을 입력해주세요 (예: E반, 심화반):');
+      if (name && name.trim()) {
+        const trimmed = name.trim();
+        if (!classes.includes(trimmed)) {
+          classes.push(trimmed);
+          setStorage(KEY_CLASSES, classes);
+          selectClass(trimmed);
+          showToast(`'${trimmed}'이(가) 추가되었습니다.`);
+        } else {
+          alert('이미 존재하는 반 이름입니다.');
+        }
+      }
+    }
+
+    function updateRecentProgressHint() {
+      const list = progressList
+        .filter(p => p.className === activeClass)
+        .sort((a, b) => b.timestamp - a.timestamp);
+
+      if (list.length > 0) {
+        hintRecentText.textContent = `${list[0].progress} (${list[0].date})`;
+        btnFillPrev.style.display = 'inline';
+      } else {
+        hintRecentText.textContent = '이전 진도 없음';
+        btnFillPrev.style.display = 'none';
+      }
+    }
+
+    btnFillPrev.onclick = () => {
+      const list = progressList
+        .filter(p => p.className === activeClass)
+        .sort((a, b) => b.timestamp - a.timestamp);
+      if (list.length > 0) {
+        fieldProgress.value = list[0].progress;
+        fieldProgress.focus();
+      }
+    };
+
+    // 2. 학급별 진도 카드 렌더링
+    function renderProgressCards() {
+      progressCardsEl.innerHTML = '';
+      classes.forEach(c => {
+        const list = progressList
+          .filter(p => p.className === c)
+          .sort((a, b) => b.timestamp - a.timestamp);
+
+        const card = document.createElement('div');
+        card.className = 'progress-card';
+        card.onclick = () => showClassHistory(c);
+
+        const latest = list[0];
+        const progressStr = latest ? latest.progress : '진도 기록이 없습니다.';
+        const dateStr = latest ? latest.date : '-';
+
+        card.innerHTML = `
+          <div>
+            <div class="progress-card-top">
+              <div class="class-title-wrap">
+                <span class="class-title-badge">${escapeHtml(c)}</span>
+                <button type="button" class="btn-card-rename" onclick="event.stopPropagation(); editClassName('${escapeAttr(c)}');" title="${c} 이름 수정">✏️ 수정</button>
+              </div>
+              <span class="date-badge">📅 ${dateStr}</span>
+            </div>
+            <div class="progress-content-preview">${escapeHtml(progressStr)}</div>
+          </div>
+          <div class="progress-card-bottom">
+            <span>총 ${list.length}회 기록</span>
+            <span style="color: var(--primary); font-weight: 600;">진도 이력 보기 →</span>
+          </div>
+        `;
+        progressCardsEl.appendChild(card);
+      });
+    }
+
+    function showClassHistory(className) {
+      modalHistoryTitle.textContent = `${className} 수업 진도 이력`;
+      const list = progressList
+        .filter(p => p.className === className)
+        .sort((a, b) => b.timestamp - a.timestamp);
+
+      if (list.length === 0) {
+        modalHistoryContent.innerHTML = `
+          <div class="empty-box">
+            아직 ${className}에 저장된 진도가 없습니다.
+          </div>
+        `;
+      } else {
+        modalHistoryContent.innerHTML = list.map(item => `
+          <div class="record-item" style="margin-bottom: 10px;">
+            <div class="record-meta">
+              <strong>📅 ${item.date}</strong>
+              <button class="btn-del-record" onclick="removeProgress('${item.id}')">삭제</button>
+            </div>
+            <div class="record-text" style="font-weight: 600;">
+              ${escapeHtml(item.progress)}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      modalHistory.classList.add('active');
+    }
+
+    window.removeProgress = function(id) {
+      if (confirm('이 진도 기록을 삭제하시겠습니까?')) {
+        progressList = progressList.filter(p => p.id !== id);
+        setStorage(KEY_PROGRESS, progressList);
+        renderProgressCards();
+        updateRecentProgressHint();
+        modalHistory.classList.remove('active');
+        showToast('진도 기록이 삭제되었습니다.');
+      }
+    };
+
+    // 3. 학생 기록 렌더링 (모아보기 & 검색 & 타임라인)
+    function renderStudentSection() {
+      const q = searchBox.value.trim().toLowerCase();
+      const filterClass = selectClassFilter.value;
+
+      const filtered = studentRecords.filter(item => {
+        const matchClass = (filterClass === 'ALL' || item.className === filterClass);
+        const matchQuery = !q || 
+          item.studentName.toLowerCase().includes(q) || 
+          item.note.toLowerCase().includes(q) ||
+          item.tag.toLowerCase().includes(q);
+        return matchClass && matchQuery;
+      });
+
+      if (currentViewMode === 'grouped') {
+        groupedContainer.style.display = 'grid';
+        timelineContainer.style.display = 'none';
+        renderGroupedView(filtered);
+      } else {
+        groupedContainer.style.display = 'none';
+        timelineContainer.style.display = 'flex';
+        renderTimelineView(filtered);
+      }
+    }
+
+    function renderGroupedView(records) {
+      groupedContainer.innerHTML = '';
+      if (records.length === 0) {
+        groupedContainer.innerHTML = `
+          <div class="empty-box" style="grid-column: 1 / -1;">
+            🔍 조건에 맞는 학생 기록이 없습니다.
+          </div>
+        `;
+        return;
+      }
+
+      // 학생별 그룹화
+      const map = {};
+      records.forEach(r => {
+        const key = `${r.className}_${r.studentName}`;
+        if (!map[key]) {
+          map[key] = {
+            className: r.className,
+            studentName: r.studentName,
+            records: []
+          };
+        }
+        map[key].records.push(r);
+      });
+
+      Object.values(map).forEach(group => {
+        group.records.sort((a, b) => b.timestamp - a.timestamp);
+
+        const card = document.createElement('div');
+        card.className = 'student-card';
+
+        // 생기부 복사용 텍스트 구성
+        const copyContent = group.records.map(rec => `[${rec.date} / ${rec.tag}] ${rec.note}`).join('\n');
+
+        card.innerHTML = `
+          <div class="student-card-header">
+            <div class="student-info">
+              <span class="student-badge">${escapeHtml(group.className)}</span>
+              <span class="student-name">${escapeHtml(group.studentName)}</span>
+              <span style="font-size:0.8rem; color:var(--text-muted);">(${group.records.length}건)</span>
+            </div>
+            <button class="btn-copy" onclick="copyStudentRecords('${escapeAttr(copyContent)}', '${escapeAttr(group.studentName)}')">
+              📋 생기부용 복사
+            </button>
+          </div>
+          <div>
+            ${group.records.map(r => `
+              <div class="record-item" style="margin-bottom: 8px;">
+                <div class="record-meta">
+                  <span>📅 ${r.date}</span>
+                  <span class="tag-badge tag-${r.tag}">#${r.tag}</span>
+                </div>
+                <div class="record-text">${escapeHtml(r.note)}</div>
+                <button class="btn-del-record" onclick="removeStudent('${r.id}')">삭제</button>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        groupedContainer.appendChild(card);
+      });
+    }
+
+    function renderTimelineView(records) {
+      timelineContainer.innerHTML = '';
+      records.sort((a, b) => b.timestamp - a.timestamp);
+
+      if (records.length === 0) {
+        timelineContainer.innerHTML = '<div class="empty-box">표시할 기록이 없습니다.</div>';
+        return;
+      }
+
+      records.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'timeline-card';
+        item.innerHTML = `
+          <div style="flex: 1;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;">
+              <span class="student-badge">${escapeHtml(r.className)}</span>
+              <strong style="font-size: 0.95rem;">${escapeHtml(r.studentName)}</strong>
+              <span class="tag-badge tag-${r.tag}">#${r.tag}</span>
+              <span style="font-size: 0.78rem; color: var(--text-muted);">📅 ${r.date}</span>
+            </div>
+            <div class="record-text">${escapeHtml(r.note)}</div>
+          </div>
+          <button class="btn-del-record" onclick="removeStudent('${r.id}')">삭제</button>
+        `;
+        timelineContainer.appendChild(item);
+      });
+    }
+
+    window.removeStudent = function(id) {
+      if (confirm('이 학생 관찰 기록을 삭제하시겠습니까?')) {
+        studentRecords = studentRecords.filter(s => s.id !== id);
+        setStorage(KEY_STUDENTS, studentRecords);
+        renderStudentSection();
+        showToast('학생 기록이 삭제되었습니다.');
+      }
+    };
+
+    window.copyStudentRecords = function(text, name) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast(`'${name}' 학생의 누적 기록이 복사되었습니다.`);
+      }).catch(() => {
+        showToast('복사에 실패했습니다. 권한을 확인해주세요.');
+      });
+    };
+
+    /* ==========================================================================
+       5. 기록 저장 로직
+       ========================================================================== */
+    function handleSave() {
+      const progressVal = fieldProgress.value.trim();
+      const studentNameVal = fieldStudentName.value.trim();
+      const studentNoteVal = fieldStudentNote.value.trim();
+      const dateVal = fieldDate.value || new Date().toISOString().split('T')[0];
+      const now = Date.now();
+
+      if (!progressVal && !studentNoteVal) {
+        alert('진도 내용이나 학생 특기사항 중 하나 이상을 입력해주세요!');
+        fieldProgress.focus();
+        return;
+      }
+
+      let savedProgress = false;
+      let savedStudent = false;
+
+      // 진도 저장
+      if (progressVal) {
+        progressList.push({
+          id: 'p_' + now,
+          className: activeClass,
+          date: dateVal,
+          progress: progressVal,
+          timestamp: now
+        });
+        setStorage(KEY_PROGRESS, progressList);
+        savedProgress = true;
+      }
+
+      // 학생 기록 저장
+      if (studentNoteVal) {
+        if (!studentNameVal) {
+          alert('학생 번호나 가명을 입력해주세요!');
+          fieldStudentName.focus();
+          return;
+        }
+        studentRecords.push({
+          id: 's_' + now,
+          className: activeClass,
+          studentName: studentNameVal,
+          tag: activeTag,
+          note: studentNoteVal,
+          date: dateVal,
+          timestamp: now
+        });
+        setStorage(KEY_STUDENTS, studentRecords);
+        savedStudent = true;
+      }
+
+      // 폼 비우기
+      fieldProgress.value = '';
+      fieldStudentName.value = '';
+      fieldStudentNote.value = '';
+
+      updateRecentProgressHint();
+      renderProgressCards();
+      renderStudentSection();
+
+      let msg = '✅ ';
+      if (savedProgress && savedStudent) msg += `[${activeClass}] 진도 & 학생 기록 동시 저장 완료!`;
+      else if (savedProgress) msg += `[${activeClass}] 새 진도 저장 완료!`;
+      else msg += `[${activeClass}] 학생 관찰 메모 저장 완료!`;
+
+      showToast(msg);
+      fieldProgress.focus();
+    }
+
+    /* ==========================================================================
+       6. 이벤트 바인딩 & 초기화
+       ========================================================================== */
+    function bindEvents() {
+      // 태그 선택
+      tagChipsEl.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tag-chip')) {
+          document.querySelectorAll('.tag-chip').forEach(c => c.classList.remove('active'));
+          e.target.classList.add('active');
+          activeTag = e.target.dataset.tag;
+        }
+      });
+
+      // 저장 버튼
+      btnSubmitEntry.addEventListener('click', handleSave);
+
+      // 단축키 (Ctrl+Enter 또는 Cmd+Enter)
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          handleSave();
+        }
+        if (e.key === 'Escape') {
+          modalHistory.classList.remove('active');
+          modalCollab.classList.remove('active');
+        }
+      });
+
+      // 탭 전환
+      tabGrouped.onclick = () => {
+        tabGrouped.classList.add('active');
+        tabTimeline.classList.remove('active');
+        currentViewMode = 'grouped';
+        renderStudentSection();
+      };
+      tabTimeline.onclick = () => {
+        tabTimeline.classList.add('active');
+        tabGrouped.classList.remove('active');
+        currentViewMode = 'timeline';
+        renderStudentSection();
+      };
+
+      // 검색 및 필터
+      searchBox.addEventListener('input', renderStudentSection);
+      selectClassFilter.addEventListener('change', renderStudentSection);
+
+      // 모달 닫기
+      btnCloseHistory.onclick = () => modalHistory.classList.remove('active');
+      modalHistory.onclick = (e) => { if (e.target === modalHistory) modalHistory.classList.remove('active'); };
+
+      btnOpenCollab.onclick = () => modalCollab.classList.add('active');
+      btnCloseCollab.onclick = () => modalCollab.classList.remove('active');
+      modalCollab.onclick = (e) => { if (e.target === modalCollab) modalCollab.classList.remove('active'); };
+
+      // 백업 다운로드
+      document.getElementById('btn-export').onclick = () => {
+        const backup = {
+          exportDate: new Date().toISOString(),
+          classes,
+          progressList,
+          studentRecords
+        };
+        const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `수업노트_백업_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('데이터 백업 파일이 저장되었습니다.');
+      };
+
+      // 샘플 데이터 재설정 (A~D반)
+      document.getElementById('btn-reload-samples').onclick = () => {
+        if (confirm('가상 예시 데이터(A, B, C, D반 5건)로 다시 채우시겠습니까?')) {
+          classes = [...INITIAL_CLASSES];
+          progressList = [...INITIAL_PROGRESS];
+          studentRecords = [...INITIAL_STUDENTS];
+          setStorage(KEY_CLASSES, classes);
+          setStorage(KEY_PROGRESS, progressList);
+          setStorage(KEY_STUDENTS, studentRecords);
+          selectClass(classes[0]);
+          renderProgressCards();
+          renderStudentSection();
+          showToast('A~D반 가상 예시 데이터가 복원되었습니다.');
+        }
+      };
+
+      // 전체 초기화
+      document.getElementById('btn-reset-data').onclick = () => {
+        if (confirm('정말로 모든 데이터를 삭제하시겠습니까?')) {
+          progressList = [];
+          studentRecords = [];
+          setStorage(KEY_PROGRESS, progressList);
+          setStorage(KEY_STUDENTS, studentRecords);
+          updateRecentProgressHint();
+          renderProgressCards();
+          renderStudentSection();
+          showToast('모든 데이터가 초기화되었습니다.');
+        }
+      };
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.add('show');
+      setTimeout(() => {
+        toastEl.classList.remove('show');
+      }, 2500);
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function escapeAttr(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/'/g, "\\'")
+        .replace(/"/g, '&quot;')
+        .replace(/\n/g, '\\n');
+    }
+
+    // 앱 시작
+    function startApp() {
+      const today = new Date().toISOString().split('T')[0];
+      fieldDate.value = today;
+
+      renderClassPills();
+      updateRecentProgressHint();
+      renderProgressCards();
+      renderStudentSection();
+      bindEvents();
+    }
+
+    startApp();
+  </script>
+</body>
+</html>
